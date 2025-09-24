@@ -1,0 +1,113 @@
+#root {
+  width: 50vw;
+  margin: 0 auto;
+  padding: 2rem;
+  border: 5px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#root h1 {
+  text-align: center;
+}
+
+.card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+}
+
+.inputs {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+}
+
+.inputs label {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+ .inputs input {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#root .inputs button{
+  width: 100%;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: center;
+}
+
+ .task .botoes{
+  border: none;
+  color: black;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  width: 10%;
+  height: 10%;
+}
+
+#root .card .task .botoes .excluir{
+  background-color: #d20101;
+  color: white;
+}
+
+#root .card .task .botoes .editar{
+  background-color: #4b6cb2;
+  color: white;
+}
+
+#root .card .task .botoes .excluir:hover{
+  color: rgb(24, 23, 23);
+} 
+
+#root .card .task .botoes .editar:hover{
+    color: rgb(24, 23, 23);
+}
+
+#root .card .task select{
+  width: 15%;
+  font-size: 1rem;
+  font-weight: 50;
+  border-radius: 10px;
+}
+
+#root .card .task{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.2rem 1rem;
+}
+
+#root .card .task .info{
+  width: 50%;
+}
+#root .card .task .info h4{
+  margin: 0.2rem 0;
+  font-size: 1.2rem;
+  border-bottom: solid #ccc 1px;
+}
+#root .card .task .info p{
+  margin: 0.2rem 0.2rem;
+  font-size: 1rem;
+  color: #555;
+  overflow-wrap: break-word;
+}

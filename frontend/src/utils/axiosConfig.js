@@ -30,9 +30,7 @@ export const deletar = async (id) => {
 };
 
 
-export const patch = async (id, novoStatus) => {
-  const { data } = await api.patch(`/tasks/${id}/status`, null, {
-    params: { status: novoStatus },
-  });
+export const patch = async (id, body) => {
+  const { data } = await api.patch(`/tasks/${id}/status`, body);
   return data;
 };

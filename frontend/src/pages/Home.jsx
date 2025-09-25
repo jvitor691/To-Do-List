@@ -101,8 +101,22 @@ const Home = () => {
     }
   };
 
-  
+  const alterarStatus = async (index, novoStatus) => {
+  const t = visibleTasks[index];
+  if (!t) return;
 
+  try {
+    setLoading(true);
+    setErr('');
+    const atualizado = await patch(t.id, { status: novoStatus }); 
+    setTaskList((prev) => prev.map((item) => (item.id === t.id ? atualizado : item)));
+  } catch (e) {
+    console.error(e);
+    setErr('Erro ao atualizar status.');
+  } finally {
+    setLoading(false);
+  }
+};
   const visibleTasks = taskList.filter((t) =>
     filter === 'todas' ? true : t.status === filter
   );
@@ -132,7 +146,7 @@ const Home = () => {
           name="descricao"
           value={task.descricao}
           onChange={Preenchimento}
-          placeholder="Adicione uma task..."
+          placeholder="Adicione uma descrição..."
         />
 
         <button onClick={AdicionarOuSalvar}>

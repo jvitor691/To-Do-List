@@ -1,81 +1,79 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from sqlalchemy import select, desc
+from sqlalchemy.orm import Session
 from typing import List
+import os
+
+from db import get_db
+from models import Task
+from schemas import TaskIn, TaskOut, StatusPatch
 
 app = FastAPI()
 
-
-origins = [
-    "http://127.0.0.1:5173",
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "http://localhost:3000",
+# CORS
+origins_env = os.getenv("CORS_ORIGINS", "")
+origins = [o.strip() for o in origins_env.split(",") if o.strip()] or [
+    "http://127.0.0.1:5173", "http://localhost:5173",
+    "http://127.0.0.1:3000", "http://localhost:3000"
 ]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=origins, allow_credentials=True,
+    allow_methods=["*"], allow_headers=["*"],
 )
-
-class TaskIn(BaseModel):
-    titulo: str
-    descricao: str
-    status: str = "pendente" 
-
-class Task(TaskIn):
-    id: int
-
-DB: List[Task] = []
-_next_id = 1
 
 @app.get("/", tags=["health"])
 def health():
-    return {"mensagem": "Olá, FastAPI está rodando 🚀"}
+    return {"mensagem": "Olá, FastAPI + PostgreSQL está rodando 🚀"}
 
-@app.get("/tasks", response_model=List[Task], tags=["tasks"])
-def list_tasks():
-    return DB
+@app.get("/tasks", response_model=List[TaskOut], tags=["tasks"])
+def list_tasks(db: Session = Depends(get_db)):
+    tasks = db.execute(select(Task).order_by(desc(Task.id))).scalars().all()
+    return tasks
 
-@app.get("/tasks/{task_id}", response_model=Task, tags=["tasks"])
-def get_task(task_id: int):
-    for t in DB:
-        if t.id == task_id:
-            return t
-    raise HTTPException(status_code=404, detail="Task não encontrada")
-
-@app.post("/tasks", response_model=Task, status_code=201, tags=["tasks"])
-def create_task(data: TaskIn):
-    global _next_id
-    task = Task(id=_next_id, **data.model_dump())
-    _next_id += 1
-    DB.insert(0, task)
+@app.get("/tasks/{task_id}", response_model=TaskOut, tags=["tasks"])
+def get_task(task_id: int, db: Session = Depends(get_db)):
+    task = db.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task não encontrada")
     return task
 
-@app.put("/tasks/{task_id}", response_model=Task, tags=["tasks"])
-def update_task(task_id: int, data: TaskIn):
-    for i, t in enumerate(DB):
-        if t.id == task_id:
-            DB[i] = Task(id=task_id, **data.model_dump())
-            return DB[i]
-    raise HTTPException(status_code=404, detail="Task não encontrada")
+@app.post("/tasks", response_model=TaskOut, status_code=201, tags=["tasks"])
+def create_task(data: TaskIn, db: Session = Depends(get_db)):
+    task = Task(titulo=data.titulo, descricao=data.descricao, status=data.status)
+    db.add(task)
+    db.commit()
+    db.refresh(task)
+    return task
 
-@app.patch("/tasks/{task_id}/status", response_model=Task, tags=["tasks"])
-def patch_status(task_id: int, status: str):
-    if status not in ("pendente", "concluido"):
-        raise HTTPException(status_code=400, detail="Status inválido")
-    for i, t in enumerate(DB):
-        if t.id == task_id:
-            DB[i] = Task(id=task_id, titulo=t.titulo, descricao=t.descricao, status=status)
-            return DB[i]
-    raise HTTPException(status_code=404, detail="Task não encontrada")
+@app.put("/tasks/{task_id}", response_model=TaskOut, tags=["tasks"])
+def update_task(task_id: int, data: TaskIn, db: Session = Depends(get_db)):
+    task = db.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task não encontrada")
+    task.titulo = data.titulo
+    task.descricao = data.descricao
+    task.status = data.status
+    db.commit()
+    db.refresh(task)
+    return task
+
+@app.patch("/tasks/{task_id}/status", response_model=TaskOut, tags=["tasks"])
+def patch_status(task_id: int, body: StatusPatch, db: Session = Depends(get_db)):
+    task = db.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task não encontrada")
+    task.status = body.status
+    db.commit()
+    db.refresh(task)
+    return task
 
 @app.delete("/tasks/{task_id}", status_code=204, tags=["tasks"])
-def delete_task(task_id: int):
-    for i, t in enumerate(DB):
-        if t.id == task_id:
-            DB.pop(i)
-            return
-    raise HTTPException(status_code=404, detail="Task não encontrada")
+def delete_task(task_id: int, db: Session = Depends(get_db)):
+    task = db.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task não encontrada")
+    db.delete(task)
+    db.commit()
+    return Response(status_code=204)

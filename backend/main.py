@@ -23,9 +23,7 @@ app.add_middleware(
     allow_methods=["*"], allow_headers=["*"],
 )
 
-@app.get("/", tags=["health"])
-def health():
-    return {"mensagem": "Olá, FastAPI + PostgreSQL está rodando 🚀"}
+
 
 @app.get("/tasks", response_model=List[TaskOut], tags=["tasks"])
 def list_tasks(db: Session = Depends(get_db)):

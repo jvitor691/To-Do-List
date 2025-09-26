@@ -46,7 +46,7 @@ const Home = () => {
   };
 
   const AdicionarOuSalvar = async () => {
-    if (!task.titulo.trim() || !task.descricao.trim()) {
+    if (!task.titulo.trim()) {
       alert('Por favor, preencha todos os campos.');
       return;
     }
@@ -92,12 +92,18 @@ const Home = () => {
   const Excluir = async (index) => {
     const t = visibleTasks[index];
     if (!t) return;
+
+    if (!window.confirm(`Excluir a tarefa "${t.titulo}"?`)) return;
+
+    const snapshot = [...taskList];
     try {
       setTaskList((prev) => prev.filter((item) => item.id !== t.id));
       await deletar(t.id);
     } catch (e) {
       console.error(e);
       setErr('Erro ao excluir tarefa.');
+
+      setTaskList(snapshot);
     }
   };
 
@@ -173,7 +179,7 @@ const Home = () => {
               onChange={(e) => alterarStatus(index, e.target.value)}
             >
               <option value="pendente">Pendente</option>
-              <option value="concluido">Concluído</option>
+              <option value="concluida">Concluído</option>
             </select>
 
             <div className="botoes">

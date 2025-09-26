@@ -1,10 +1,10 @@
 from pydantic import BaseModel
-from typing import Literal
+from typing import Literal , Optional
 
 class TaskIn(BaseModel):
     titulo: str
-    descricao: str
-    status: Literal["pendente", "concluido"] = "pendente"
+    descricao: Optional[str] = None
+    status: Literal["pendente", "concluida"] = "pendente"
 
 class TaskOut(TaskIn):
     id: int
@@ -12,11 +12,11 @@ class TaskOut(TaskIn):
         from_attributes = True
 
 class StatusPatch(BaseModel):
-    status: Literal["pendente", "concluido"]
+    status: Literal["pendente", "concluida"]
     class Config:
         schema_extra = {
             "example": {
-                "status": "concluido"
+                "status": "concluida"
             }
         }
         

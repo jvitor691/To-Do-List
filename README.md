@@ -1,173 +1,101 @@
-# To-Do List com Django, PostgreSQL e React
+# To-Do List — React (Vite) + Django (DRF, ORM do Django)
 
-Este projeto é uma aplicação **To-Do List** fullstack, desenvolvida para fins de estudo/avaliação. Ele utiliza:
-
-* **Backend:** Django + Django REST Framework + PostgreSQL
-* **Frontend:** React (Vite) + Axios + Material UI Icons
-* **Banco de Dados:** PostgreSQL
+Aplicação de lista de tarefas com **frontend React** e **backend Django**.  
+O backend usa **ORM do Django** com **migrações nativas** (`makemigrations`/`migrate`) e expõe rotas **sem barra final** para compatibilidade com o front.
 
 ---
 
-## 🚀 Funcionalidades
-
-* Criar tarefas com título, descrição e status (pendente/concluído)
-* Listar tarefas (ordenadas por ID desc)
-* Editar tarefas existentes
-* Alterar status via `PATCH`
-* Excluir tarefas (com confirmação no frontend)
-* Filtro de tarefas (todas/pendentes/concluídas)
+## ✨ Funcionalidades
+- Criar, listar, editar e excluir tarefas
+- Status: `pending` | `done`
+- Atualização de status por `PATCH`
+- (Opcional) filtro por status via query string
 
 ---
 
-## 📦 Pré-requisitos
-
-* Python **3.11+**
-* Node.js (versão LTS recomendada)
-* PostgreSQL (rodando localmente)
-* pgAdmin4 (opcional, para gerenciar o banco)
+## 🧱 Stack
+- **Frontend:** React 18+, Vite, Axios
+- **Backend:** Django 5, Django REST Framework, django-cors-headers
+- **Banco:** SQLite (padrão)
 
 ---
 
-## ⚙️ Configuração do Backend
+## 📁 Estrutura sugerida
+.
+├─ backend_django/
+│ ├─ manage.py
+│ ├─ requirements.txt
+│ ├─ todo/ # settings/urls/asgi/wsgi
+│ └─ tasks/ # models/serializers/views/urls/admin/migrations
+└─ frontend/ # app React (Vite)
 
-### 1. Crie o banco e usuário no PostgreSQL
+yaml
+Copiar código
 
-```sql
-CREATE ROLE appuser LOGIN PASSWORD 'apppass';
-CREATE DATABASE todolist OWNER appuser;
-GRANT ALL PRIVILEGES ON DATABASE todolist TO appuser;
-```
+---
 
-### 2. Clone e entre no diretório
+## 🚀 Como rodar
 
+### 1) Backend (Django)
 ```bash
-git clone https://github.com/jvitor691/To-Do-List.git
-cd To-Do-List/backend
-```
-
-### 3. Crie o ambiente virtual e instale dependências
-
-```bash
+cd backend_django
 python -m venv .venv
-.venv\Scripts\Activate.ps1   # Windows
-source .venv/bin/activate    # Linux/Mac
+# Windows: .venv\Scripts\activate
+# Linux/Mac: source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
-```
 
-### 4. Configure o arquivo `.env`
-
-Crie `backend/.env`:
-
-```
-DATABASE_URL=postgresql://appuser:apppass@127.0.0.1:5432/todolist
-SECRET_KEY=django-insecure-change-me-in-production
-DEBUG=True
-```
-
-### 5. Rodar migrações Django
-
-```bash
 python manage.py makemigrations
 python manage.py migrate
-```
-
-### 6. Criar superusuário (opcional)
-
-```bash
-python manage.py createsuperuser
-```
-
-### 7. Iniciar o servidor Django
-
-```bash
-python manage.py runserver
-```
-
-API disponível em `http://127.0.0.1:8000`.
-
----
-
-## ⚛️ Configuração do Frontend
-
-### 1. Instale dependências
-
-```bash
+python manage.py runserver   # http://127.0.0.1:8000
+2) Frontend (React + Vite)
+bash
+Copiar código
 cd ../frontend
 npm install
-```
+# Configure a URL da API do backend:
+echo VITE_API_URL=http://127.0.0.1:8000 > .env
+npm run dev   # http://127.0.0.1:5173
+🔌 Endpoints (sem /api e sem barra final)
+Método	Rota	Descrição
+GET	/tasks	Lista tarefas
+POST	/tasks	Cria { title, description?, status? }
+GET	/tasks/{id}	Detalha tarefa
+PUT	/tasks/{id}	Atualiza tarefa inteira
+PATCH	/tasks/{id}/status	Atualiza apenas o status (pending/done)
+DELETE	/tasks/{id}	Remove tarefa
 
-### 2. Configure o arquivo `.env`
+Exemplos (cURL)
+bash
+Copiar código
+# listar
+curl http://127.0.0.1:8000/tasks
 
-Crie `frontend/.env`:
+# criar
+curl -X POST http://127.0.0.1:8000/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Estudar ORM Django","description":"To-Do","status":"pending"}'
 
-```
-VITE_API_URL=http://127.0.0.1:8000
-```
+# mudar status
+curl -X PATCH http://127.0.0.1:8000/tasks/1/status \
+  -H "Content-Type: application/json" \
+  -d '{"status":"done"}'
+⚙️ Notas importantes
+Migrações: sempre gerar e commitar backend_django/tasks/migrations/.
 
-### 3. Rode o frontend
+CORS: habilitado para http://localhost:5173 no todo/settings.py.
 
-```bash
-npm run dev
-```
+Trailing slash: as rotas aceitam sem barra final para casar com o front.
 
-Aplicação disponível em `http://127.0.0.1:5173`.
+Se preferir com /, ajuste urls/router e o front.
 
----
+🧪 Troubleshooting
+500 em POST /tasks: confirme que as rotas aceitam sem barra final ou use APPEND_SLASH=False.
 
-## 🔍 Rotas principais do Backend
+CORS bloqueando: revise CORS_ALLOWED_ORIGINS no todo/settings.py.
 
-* `GET /tasks` → lista todas as tarefas
-* `POST /tasks` → cria uma nova tarefa
-* `GET /tasks/{id}` → busca uma tarefa
-* `PUT /tasks/{id}` → atualiza título/descrição/status
-* `PATCH /tasks/{id}/status` → atualiza apenas o status
-* `DELETE /tasks/{id}` → exclui tarefa
+Reset do banco: apague db.sqlite3 e rode as migrações novamente.
 
----
 
-## ✅ Checklist de Requisitos Atendidos
-
-* [x] Backend com Django + PostgreSQL
-* [x] ORM com Django ORM
-* [x] CRUD completo
-* [x] Frontend React consumindo a API
-* [x] Axios configurado com baseURL dinâmica
-* [x] Confirmação de exclusão no frontend
-* [x] Filtro por status
-* [x] Deploy local reprodutível
-
----
-
-## 👩‍💻 Como contribuir/testar
-
-1. Clone o repositório
-2. Configure `.env` no backend e frontend
-3. Crie o banco PostgreSQL
-4. Rode migrações Django e start backend
-5. Rode frontend com `npm run dev`
-
-## 🔧 Comandos Django Úteis
-
-```bash
-# Criar migrações
-python manage.py makemigrations
-
-# Aplicar migrações
-python manage.py migrate
-
-# Criar superusuário
-python manage.py createsuperuser
-
-# Iniciar servidor de desenvolvimento
-python manage.py runserver
-
-# Acessar shell Django
-python manage.py shell
-```
-
----
-
-## 📜 Licença
-
+📄 Licença
 Uso acadêmico/educacional.

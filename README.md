@@ -16,7 +16,7 @@ O backend usa **ORM do Django** com **migrações nativas** (`makemigrations`/`m
 ## 🧱 Stack
 - **Frontend:** React 18+, Vite, Axios
 - **Backend:** Django 5, Django REST Framework, django-cors-headers
-- **Banco:** SQLite (padrão)
+- **Banco:** Postgres
 
 ---
 

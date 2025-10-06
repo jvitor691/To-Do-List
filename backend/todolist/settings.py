@@ -1,154 +1,132 @@
 """
-Django settings for todolist project.
+Django settings for todolist project (DATABASE_URL sem dj-database-url).
 """
-
 from pathlib import Path
 from decouple import config
+from urllib.parse import urlparse
 import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# --- Básico ---
+SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-me-in-production")
+DEBUG = config("DEBUG", default=True, cast=bool)
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+# --- Parse DATABASE_URL manualmente ---
+_raw = config("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')
+# suporta formato SQLAlchemy "postgresql+psycopg://"
+if _raw.startswith("postgresql+psycopg://"):
+    _raw = _raw.replace("postgresql+psycopg://", "postgresql://", 1)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+url = urlparse(_raw)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+if url.scheme.startswith("postgres"):
+    ENGINE = "django.db.backends.postgresql"
+    NAME = url.path.lstrip("/") or "postgres"
+    USER = url.username or ""
+    PASSWORD = url.password or ""
+    HOST = url.hostname or "127.0.0.1"
+    PORT = str(url.port or "5432")
+    DATABASES = {
+        "default": {
+            "ENGINE": ENGINE,
+            "NAME": NAME,
+            "USER": USER,
+            "PASSWORD": PASSWORD,
+            "HOST": HOST,
+            "PORT": PORT,
+        }
+    }
+elif url.scheme.startswith("sqlite"):
+    # Suporta sqlite:///caminho/para/db.sqlite3
+    # ou sqlite:///<abs_path>
+    SQLITE_NAME = _raw.replace("sqlite:///", "")
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": SQLITE_NAME,
+        }
+    }
+else:
+    raise RuntimeError(f"DATABASE_URL com esquema não suportado: {url.scheme}")
 
-
-# Application definition
-
+# --- Apps ---
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'corsheaders',
-    'tasks',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    # 3rd
+    "rest_framework",
+    "corsheaders",
+    # local
+    "tasks",
 ]
 
+# --- Middleware ---
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'todolist.urls'
+ROOT_URLCONF = "todolist.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'todolist.wsgi.application'
+WSGI_APPLICATION = "todolist.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASE_URL = config(
-    'DATABASE_URL',
-    default='postgresql://appuser:apppass@127.0.0.1:5432/todolist'
-)
-
-# Parse DATABASE_URL for Django
-if DATABASE_URL.startswith('postgresql+psycopg://'):
-    DATABASE_URL = DATABASE_URL.replace('postgresql+psycopg://', 'postgresql://')
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='todolist'),
-        'USER': config('DB_USER', default='appuser'),
-        'PASSWORD': config('DB_PASSWORD', default='apppass'),
-        'HOST': config('DB_HOST', default='127.0.0.1'),
-        'PORT': config('DB_PORT', default='5432'),
-    }
-}
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
-LANGUAGE_CODE = 'pt-br'
-
-TIME_ZONE = 'America/Sao_Paulo'
-
+# --- I18N / TZ ---
+LANGUAGE_CODE = "pt-br"
+TIME_ZONE = "America/Fortaleza"
 USE_I18N = True
-
 USE_TZ = True
 
+# --- Static ---
+STATIC_URL = "static/"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# REST Framework
+# --- DRF ---
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
     ],
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
     ],
 }
 
-# CORS
+# --- CORS ---
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
     "http://127.0.0.1:3000",
     "http://localhost:3000",
 ]
-
 CORS_ALLOW_CREDENTIALS = True
+
+# --- Evita redireciono que quebra POST /tasks sem barra final ---
+APPEND_SLASH = False

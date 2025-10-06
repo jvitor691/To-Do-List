@@ -1,9 +1,9 @@
-#📝 To-Do List — React (Vite) + Django (DRF, ORM do Django):
+📝 To-Do List — React (Vite) + Django (DRF, ORM do Django)
 
 Aplicação de lista de tarefas com frontend em React e backend em Django (DRF).
 O backend usa o ORM nativo do Django com migrações (makemigrations / migrate) e expõe rotas sem barra final (/tasks em vez de /tasks/) para compatibilidade com o front.
 
-#✨ Funcionalidades:
+✨ Funcionalidades
 
 Criar, listar, editar e excluir tarefas
 
@@ -11,7 +11,7 @@ Atualizar status (pendente / concluida) via PATCH
 
 (Opcional) filtrar tarefas por status via query string
 
-#🧱 Stack:
+🧱 Stack
 
 Frontend: React 18+, Vite, Axios
 
@@ -19,7 +19,7 @@ Backend: Django 5, Django REST Framework, django-cors-headers
 
 Banco de dados: PostgreSQL
 
-#📁 Estrutura do projeto
+📁 Estrutura do projeto
 To-Do-List/
 ├─ backend/
 │  ├─ manage.py
@@ -28,7 +28,7 @@ To-Do-List/
 │  └─ tasks/           # models / serializers / views / urls / admin / migrations
 └─ frontend/           # app React (Vite)
 
-#🚀 Como rodar o projeto
+🚀 Como rodar o projeto
 1️⃣ Backend (Django)
 cd backend
 python -m venv .venv
@@ -98,7 +98,6 @@ Problema	Solução
 500 em POST /tasks	Confirme que APPEND_SLASH=False no settings.
 Erro de CORS	Verifique CORS_ALLOWED_ORIGINS no settings.
 Banco quebrado	Exclua o banco e rode makemigrations + migrate novamente.
-
-#📄 Licença
+📄 Licença
 
 Uso acadêmico e educacional. Livre para estudos, testes e portfólio.

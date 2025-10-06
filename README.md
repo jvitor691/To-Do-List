@@ -1,9 +1,9 @@
-#📝 To-Do List — React (Vite) + Django (DRF, ORM do Django)
+#📝 To-Do List — React (Vite) + Django (DRF, ORM do Django):
 
 Aplicação de lista de tarefas com frontend em React e backend em Django (DRF).
 O backend usa o ORM nativo do Django com migrações (makemigrations / migrate) e expõe rotas sem barra final (/tasks em vez de /tasks/) para compatibilidade com o front.
 
-#✨ Funcionalidades
+#✨ Funcionalidades:
 
 Criar, listar, editar e excluir tarefas
 
@@ -11,7 +11,7 @@ Atualizar status (pendente / concluida) via PATCH
 
 (Opcional) filtrar tarefas por status via query string
 
-#🧱 Stack
+#🧱 Stack:
 
 Frontend: React 18+, Vite, Axios
 

@@ -13,7 +13,7 @@ export default function FilterModal({ open, onClose, value, onChange }) {
         >
           <FormControlLabel value="todas" label="Todas" control={<Radio />} />
           <FormControlLabel value="pendente" label="Pendentes" control={<Radio />} />
-          <FormControlLabel value="concluido" label="Concluídas" control={<Radio />} />
+          <FormControlLabel value="concluida" label="Concluídas" control={<Radio />} />
         </RadioGroup>
       </DialogContent>
       <DialogActions>

@@ -179,7 +179,7 @@ const Home = () => {
               onChange={(e) => alterarStatus(index, e.target.value)}
             >
               <option value="pendente">Pendente</option>
-              <option value="concluida">Concluído</option>
+              <option value="concluida">Concluída</option>
             </select>
 
             <div className="botoes">

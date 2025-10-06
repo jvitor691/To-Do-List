@@ -1,8 +1,8 @@
-# To-Do List com FastAPI, PostgreSQL e React
+# To-Do List com Django, PostgreSQL e React
 
 Este projeto é uma aplicação **To-Do List** fullstack, desenvolvida para fins de estudo/avaliação. Ele utiliza:
 
-* **Backend:** FastAPI + SQLAlchemy + Alembic (migrações) + PostgreSQL
+* **Backend:** Django + Django REST Framework + PostgreSQL
 * **Frontend:** React (Vite) + Axios + Material UI Icons
 * **Banco de Dados:** PostgreSQL
 
@@ -60,22 +60,28 @@ pip install -r requirements.txt
 Crie `backend/.env`:
 
 ```
-DATABASE_URL=postgresql+psycopg://appuser:apppass@127.0.0.1:5432/todolist
-CORS_ORIGINS=http://127.0.0.1:5173,http://localhost:5173
-SECRET_KEY=uma_chave_aleatoria
-ALGORITHM=HS256
+DATABASE_URL=postgresql://appuser:apppass@127.0.0.1:5432/todolist
+SECRET_KEY=django-insecure-change-me-in-production
+DEBUG=True
 ```
 
-### 5. Rodar migrações Alembic
+### 5. Rodar migrações Django
 
 ```bash
-alembic upgrade head
+python manage.py makemigrations
+python manage.py migrate
 ```
 
-### 6. Iniciar o servidor FastAPI
+### 6. Criar superusuário (opcional)
 
 ```bash
-uvicorn main:app --reload
+python manage.py createsuperuser
+```
+
+### 7. Iniciar o servidor Django
+
+```bash
+python manage.py runserver
 ```
 
 API disponível em `http://127.0.0.1:8000`.
@@ -122,8 +128,8 @@ Aplicação disponível em `http://127.0.0.1:5173`.
 
 ## ✅ Checklist de Requisitos Atendidos
 
-* [x] Backend com FastAPI + PostgreSQL
-* [x] ORM com SQLAlchemy + Alembic
+* [x] Backend com Django + PostgreSQL
+* [x] ORM com Django ORM
 * [x] CRUD completo
 * [x] Frontend React consumindo a API
 * [x] Axios configurado com baseURL dinâmica
@@ -138,8 +144,27 @@ Aplicação disponível em `http://127.0.0.1:5173`.
 1. Clone o repositório
 2. Configure `.env` no backend e frontend
 3. Crie o banco PostgreSQL
-4. Rode migrações e start backend
+4. Rode migrações Django e start backend
 5. Rode frontend com `npm run dev`
+
+## 🔧 Comandos Django Úteis
+
+```bash
+# Criar migrações
+python manage.py makemigrations
+
+# Aplicar migrações
+python manage.py migrate
+
+# Criar superusuário
+python manage.py createsuperuser
+
+# Iniciar servidor de desenvolvimento
+python manage.py runserver
+
+# Acessar shell Django
+python manage.py shell
+```
 
 ---
 

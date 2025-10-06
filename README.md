@@ -7,7 +7,7 @@ O backend usa **ORM do Django** com **migrações nativas** (`makemigrations`/`m
 
 ## ✨ Funcionalidades
 - Criar, listar, editar e excluir tarefas
-- Status: `pending` | `done`
+- Status: `pendente` | `concluida`
 - Atualização de status por `PATCH`
 - (Opcional) filtro por status via query string
 
@@ -22,7 +22,7 @@ O backend usa **ORM do Django** com **migrações nativas** (`makemigrations`/`m
 
 ## 📁 Estrutura sugerida
 .
-├─ backend_django/
+├─ backend/
 │ ├─ manage.py
 │ ├─ requirements.txt
 │ ├─ todo/ # settings/urls/asgi/wsgi
